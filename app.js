@@ -1,14 +1,19 @@
-const http = require('http');
-
-const hostname = '127.0.0.1';
+const express = require('express');
 const port = 3002;
+const app = express();
+const bodyParser = require('body-parser');
+const routes = require('./routes/routes');
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hola Mundo');
-});
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true,
+}));
 
-server.listen(port, hostname, () => {
-  console.log(`El servidor se está ejecutando en http://${hostname}:${port}/`);
+routes(app);
+
+// Start the server
+const server = app.listen(port, (error) => {
+  if (error) return console.log(`Error: ${error}`);
+
+  console.log(`Server listening on port ${server.address().port}`);
 });
