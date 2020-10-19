@@ -1,5 +1,4 @@
-const connection = require('../data/config');
-const pool = require('../data/config');
+const db = require('../data/lowdbconfig');
 
 const router = app => {
     app.get('/', (request, response) => {
@@ -7,42 +6,15 @@ const router = app => {
             message: 'Node.js and Express REST API'
         });
     });
-    app.get('/users', (request, response) => {
-        connection.connect(function (err) {
-            if (err) {
-                console.error('Error connecting: ' + err.stack);
-                return;
-            }
 
-            console.log('Connected as id ' + connection.threadId);
-        });
-        connection.query('SELECT * FROM users', (error, result) => {
-            if (error) throw error;
+    app.post('/login', (request, response) => {
+        let user = db.get('users').find({ "username": request.body.username }).value();
+        if (user && user.password === request.body.password) {
+            response.status(200).send(`User is logged correctly`);
+        } else {
+            response.status(404).send(`User not found`);
+        }
 
-            response.send(result);
-            connection.end();
-        });
-    });
-
-    app.get('/users/:nickname', (request, response) => {
-        const nickname = request.params.nickname;
-        connection.connect(function (err) {
-            if (err) {
-                console.error('Error connecting: ' + err.stack);
-                return;
-            }
-
-            console.log('Connected as id ' + connection.threadId);
-        });
-        connection.query('SELECT * FROM users where nickname = ?', nickname, (error, result) => {
-            if (error) throw error;
-
-            response.send(result);
-            connection.end();
-        });
     });
 }
-
-
-
 module.exports = router;
